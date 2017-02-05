@@ -38,15 +38,18 @@ public class FPSController extends InputAdapter {
     private int ROLL_RIGHT = Keys.E;
     private int STRAFE_UP = Keys.SPACE;
     private int STRAFE_DOWN = Keys.SHIFT_LEFT;
-    private float speedMultiplier = 5;
+    private float speedMultiplier = 10;
     private Vector3 velocity;
     private float degreesPerPixel = 0.5f;
-    private float rollSpeed = 0.8f;
+    private float rollMultiplier = 0.3f;
+    private Quaternion rollVelocity;
+
     private final Vector3 tmp = new Vector3();
 
     public FPSController (Camera camera) {
         this.camera = camera;
         velocity = new Vector3(0, 0, 0);
+        rollVelocity = new Quaternion();
     }
 
     @Override
@@ -110,12 +113,12 @@ public class FPSController extends InputAdapter {
             velocity.add(tmp);
         }
         if (keys.containsKey(ROLL_LEFT)) {
-            Quaternion roll = new Quaternion().set(camera.direction, -rollSpeed);
-            camera.rotate(roll);
+            Quaternion roll = new Quaternion().set(camera.direction, -rollMultiplier);
+            rollVelocity.mul(roll);
         }
         if (keys.containsKey(ROLL_RIGHT)) {
-            Quaternion roll = new Quaternion().set(camera.direction, rollSpeed);
-            camera.rotate(roll);
+            Quaternion roll = new Quaternion().set(camera.direction, rollMultiplier);
+            rollVelocity.mul(roll);
         }
         if (keys.containsKey(STRAFE_UP)) {
             tmp.set(camera.up).nor().scl(deltaTime * speedMultiplier);
@@ -132,6 +135,7 @@ public class FPSController extends InputAdapter {
         //TODO CONSTANT MOVEMENT
         camera.position.add(velocity);
         //TODO CONSTANT ROTATION
+        camera.rotate(rollVelocity);
 
         camera.update(true);
     }

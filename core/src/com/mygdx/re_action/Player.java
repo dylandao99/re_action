@@ -27,7 +27,6 @@ public class Player {
 
         fpsController = new FPSController(cam);
 
-        //TODO may not need
-        fpsController.setSpeedMultiplier(10f);
+
     }
 }
