@@ -10,11 +10,11 @@ import com.badlogic.gdx.math.Vector3;
  */
 public class Player {
 
-    public int health;
-    public Vector3 velocity;
-    public PerspectiveCamera cam;
-    public FPSController fpsController;
-    public ModelInstance ml;
+    int health;
+    Vector3 velocity;
+    PerspectiveCamera cam;
+    FPSController fpsController;
+    ModelInstance ml;
 
 
     public Player(){
