@@ -38,10 +38,11 @@ public class FPSController extends InputAdapter {
     private int ROLL_RIGHT = Keys.E;
     private int STRAFE_UP = Keys.SPACE;
     private int STRAFE_DOWN = Keys.SHIFT_LEFT;
+    private int STABILIZE = Keys.CONTROL_LEFT;
     private float speedMultiplier = 10;
     private Vector3 velocity;
     private float degreesPerPixel = 0.5f;
-    private float rollMultiplier = 0.3f;
+    private float rollMultiplier = 1.0f;
     private Quaternion rollVelocity;
 
     private final Vector3 tmp = new Vector3();
@@ -113,11 +114,11 @@ public class FPSController extends InputAdapter {
             velocity.add(tmp);
         }
         if (keys.containsKey(ROLL_LEFT)) {
-            Quaternion roll = new Quaternion().set(camera.direction, -rollMultiplier);
+            Quaternion roll = new Quaternion().set(camera.direction, -rollMultiplier*deltaTime);
             rollVelocity.mul(roll);
         }
         if (keys.containsKey(ROLL_RIGHT)) {
-            Quaternion roll = new Quaternion().set(camera.direction, rollMultiplier);
+            Quaternion roll = new Quaternion().set(camera.direction, rollMultiplier*deltaTime);
             rollVelocity.mul(roll);
         }
         if (keys.containsKey(STRAFE_UP)) {
@@ -132,9 +133,23 @@ public class FPSController extends InputAdapter {
             tmp.set(camera.direction).crs(camera.up).nor().scl(deltaTime * speedMultiplier);
             velocity.add(tmp);
         }
-        //TODO CONSTANT MOVEMENT
+
+        //TODO stabilizer
+        if (keys.containsKey(STABILIZE)) {
+            //movement
+            //slow down
+            tmp.set(velocity).nor().scl(-deltaTime*10);
+            velocity.add(tmp);
+            //stop
+            if (velocity.len() < 0.001) {velocity.scl(0);}
+
+            //rotation
+            rollVelocity.slerp(new Quaternion(), deltaTime*5);
+        }
+
+        //update position with velocity
         camera.position.add(velocity);
-        //TODO CONSTANT ROTATION
+        //update rotation with rollVelocity
         camera.rotate(rollVelocity);
 
         camera.update(true);
