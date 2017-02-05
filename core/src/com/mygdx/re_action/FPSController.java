@@ -89,6 +89,7 @@ public class FPSController extends InputAdapter {
     }
 
     public void update (float deltaTime) {
+        //TODO change to do based upon velocity
         if (keys.containsKey(FORWARD)) {
             tmp.set(camera.direction).nor().scl(deltaTime * velocity);
             camera.position.add(tmp);

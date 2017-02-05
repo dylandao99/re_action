@@ -22,8 +22,7 @@ import java.io.InputStream;
 public class re_action extends ApplicationAdapter {
 
 	//player entities
-	private PerspectiveCamera playerCam;
-	private FPSController fpsPlayerCam;
+	private Player player;
 
 	//world entities
 	Environment env;
@@ -43,15 +42,11 @@ public class re_action extends ApplicationAdapter {
 		Gdx.input.setCursorCatched(true);
 
 		//initialize player entities
-		playerCam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		playerCam.far = 1200;
-
-		fpsPlayerCam = new FPSController(playerCam);
-		fpsPlayerCam.setVelocity(100f);
+		player = new Player();
 
 		//TODO remove
-		playerCam.position.set(10f, 10f, 10f);
-		playerCam.lookAt(0f, 0f, 0f);
+		player.cam.position.set(10f, 10f, 10f);
+		player.cam.lookAt(0f, 0f, 0f);
 
 		//initialize lighting
 		dl = new DirectionalLight();
@@ -79,10 +74,10 @@ public class re_action extends ApplicationAdapter {
 		iBgCube = new ModelInstance(mBgCube);
 
 		//set player input control
-		Gdx.input.setInputProcessor(fpsPlayerCam);
+		Gdx.input.setInputProcessor(player.fpsController);
 
 		//first camera update
-		playerCam.update();
+		player.cam.update();
 	}
 
 	@Override
@@ -90,12 +85,12 @@ public class re_action extends ApplicationAdapter {
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-		mb.begin(playerCam);
+		mb.begin(player.cam);
 		mb.render(iBgCube, env);
 		mb.end();
 
-		fpsPlayerCam.update();
-		playerCam.update();
+		player.fpsController.update();
+		player.cam.update();
 
 		//TODO set player spirte to follow camera
 	}
