@@ -36,6 +36,8 @@ public class FPSController extends InputAdapter {
     private int BACKWARD = Keys.S;
     private int ROLL_LEFT = Keys.Q;
     private int ROLL_RIGHT = Keys.E;
+    private int STRAFE_UP = Keys.SPACE;
+    private int STRAFE_DOWN = Keys.SHIFT_LEFT;
     private float velocity = 5;
     private float degreesPerPixel = 0.5f;
     private float rollSpeed = 0.8f;
@@ -110,6 +112,18 @@ public class FPSController extends InputAdapter {
         if (keys.containsKey(ROLL_RIGHT)) {
             Quaternion roll = new Quaternion().set(camera.direction, rollSpeed);
             camera.rotate(roll);
+        }
+        if (keys.containsKey(STRAFE_UP)) {
+            tmp.set(camera.up).nor().scl(deltaTime * velocity);
+            camera.position.add(tmp);
+        }
+        if (keys.containsKey(STRAFE_DOWN)) {
+            tmp.set(camera.up).nor().scl(-deltaTime * velocity);
+            camera.position.add(tmp);
+        }
+        if (keys.containsKey(STRAFE_RIGHT)) {
+            tmp.set(camera.direction).crs(camera.up).nor().scl(deltaTime * velocity);
+            camera.position.add(tmp);
         }
         camera.update(true);
     }
