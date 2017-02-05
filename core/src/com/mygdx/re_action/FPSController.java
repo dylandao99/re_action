@@ -38,13 +38,15 @@ public class FPSController extends InputAdapter {
     private int ROLL_RIGHT = Keys.E;
     private int STRAFE_UP = Keys.SPACE;
     private int STRAFE_DOWN = Keys.SHIFT_LEFT;
-    private float velocity = 5;
+    private float speedMultiplier = 5;
+    private Vector3 velocity;
     private float degreesPerPixel = 0.5f;
     private float rollSpeed = 0.8f;
     private final Vector3 tmp = new Vector3();
 
     public FPSController (Camera camera) {
         this.camera = camera;
+        velocity = new Vector3(0, 0, 0);
     }
 
     @Override
@@ -60,9 +62,10 @@ public class FPSController extends InputAdapter {
     }
 
     /** Sets the velocity in units per second for moving forward, backward and strafing left/right.
-     * @param velocity the velocity in units per second */
-    public void setVelocity (float velocity) {
-        this.velocity = velocity;
+     * @param speedMultiplier the velocity in units per second */
+
+    public void setSpeedMultiplier (float speedMultiplier) {
+        this.speedMultiplier = speedMultiplier;
     }
 
     /** Sets how many degrees to rotate per pixel the mouse moved.
@@ -91,20 +94,20 @@ public class FPSController extends InputAdapter {
     public void update (float deltaTime) {
         //TODO change to do based upon velocity
         if (keys.containsKey(FORWARD)) {
-            tmp.set(camera.direction).nor().scl(deltaTime * velocity);
-            camera.position.add(tmp);
+            tmp.set(camera.direction).nor().scl(deltaTime * speedMultiplier);
+            velocity.add(tmp);
         }
         if (keys.containsKey(BACKWARD)) {
-            tmp.set(camera.direction).nor().scl(-deltaTime * velocity);
-            camera.position.add(tmp);
+            tmp.set(camera.direction).nor().scl(-deltaTime * speedMultiplier);
+            velocity.add(tmp);
         }
         if (keys.containsKey(STRAFE_LEFT)) {
-            tmp.set(camera.direction).crs(camera.up).nor().scl(-deltaTime * velocity);
-            camera.position.add(tmp);
+            tmp.set(camera.direction).crs(camera.up).nor().scl(-deltaTime * speedMultiplier);
+            velocity.add(tmp);
         }
         if (keys.containsKey(STRAFE_RIGHT)) {
-            tmp.set(camera.direction).crs(camera.up).nor().scl(deltaTime * velocity);
-            camera.position.add(tmp);
+            tmp.set(camera.direction).crs(camera.up).nor().scl(deltaTime * speedMultiplier);
+            velocity.add(tmp);
         }
         if (keys.containsKey(ROLL_LEFT)) {
             Quaternion roll = new Quaternion().set(camera.direction, -rollSpeed);
@@ -115,17 +118,21 @@ public class FPSController extends InputAdapter {
             camera.rotate(roll);
         }
         if (keys.containsKey(STRAFE_UP)) {
-            tmp.set(camera.up).nor().scl(deltaTime * velocity);
-            camera.position.add(tmp);
+            tmp.set(camera.up).nor().scl(deltaTime * speedMultiplier);
+            velocity.add(tmp);
         }
         if (keys.containsKey(STRAFE_DOWN)) {
-            tmp.set(camera.up).nor().scl(-deltaTime * velocity);
-            camera.position.add(tmp);
+            tmp.set(camera.up).nor().scl(-deltaTime * speedMultiplier);
+            velocity.add(tmp);
         }
         if (keys.containsKey(STRAFE_RIGHT)) {
-            tmp.set(camera.direction).crs(camera.up).nor().scl(deltaTime * velocity);
-            camera.position.add(tmp);
+            tmp.set(camera.direction).crs(camera.up).nor().scl(deltaTime * speedMultiplier);
+            velocity.add(tmp);
         }
+        //TODO CONSTANT MOVEMENT
+        camera.position.add(velocity);
+        //TODO CONSTANT ROTATION
+
         camera.update(true);
     }
 }
