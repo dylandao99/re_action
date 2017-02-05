@@ -2,12 +2,22 @@ package com.mygdx.re_action;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.loaders.ModelLoader;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
+import com.badlogic.gdx.graphics.g3d.model.data.ModelData;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import javafx.scene.AmbientLight;
+import com.badlogic.gdx.graphics.g3d.utils.TextureProvider;
+import com.badlogic.gdx.utils.BaseJsonReader;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.UBJsonReader;
+
+import java.io.InputStream;
 
 public class re_action extends ApplicationAdapter {
 
@@ -20,6 +30,7 @@ public class re_action extends ApplicationAdapter {
 
 	//objects
 	private ModelBatch mb;
+
 	private Model mBgCube;
 	private ModelInstance iBgCube;
 
@@ -33,7 +44,7 @@ public class re_action extends ApplicationAdapter {
 
 		//initialize player entities
 		playerCam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		playerCam.far = 1000;
+		playerCam.far = 1200;
 
 		fpsPlayerCam = new FPSController(playerCam);
 		fpsPlayerCam.setVelocity(100f);
@@ -53,11 +64,17 @@ public class re_action extends ApplicationAdapter {
 
 		mb = new ModelBatch();
 
-		ModelBuilder mblr = new ModelBuilder();
+		//ModelBuilder mblr = new ModelBuilder();
 
-		mBgCube = mblr.createBox(5, 5, 5,
+		G3dModelLoader ml = new G3dModelLoader(new UBJsonReader());
+
+		//ModelData md = ml.loadModelData(Gdx.files.internal("invertcube.g3db"));
+
+		mBgCube = ml.loadModel(Gdx.files.internal("invertcube.g3db"));
+
+		/*mBgCube = mblr.createBox(5, 5, 5,
 				new Material(ColorAttribute.createDiffuse(Color.GREEN)),
-				VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+				VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);*/
 
 		iBgCube = new ModelInstance(mBgCube);
 
