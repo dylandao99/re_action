@@ -42,7 +42,7 @@ public class FPSController extends InputAdapter {
     private float speedMultiplier = 10;
     private Vector3 velocity;
     private float degreesPerPixel = 0.5f;
-    private float rollMultiplier = 1.0f;
+    private float rollMultiplier = 10.0f;
     private Quaternion rollVelocity;
 
     private final Vector3 tmp = new Vector3();
@@ -96,7 +96,7 @@ public class FPSController extends InputAdapter {
     }
 
     public void update (float deltaTime) {
-        //TODO change to do based upon velocity
+        //velocity-based
         if (keys.containsKey(FORWARD)) {
             tmp.set(camera.direction).nor().scl(deltaTime * speedMultiplier);
             velocity.add(tmp);
@@ -134,18 +134,20 @@ public class FPSController extends InputAdapter {
             velocity.add(tmp);
         }
 
-        //TODO stabilizer
+        //stabilizer
         if (keys.containsKey(STABILIZE)) {
             //movement
             //slow down
             tmp.set(velocity).nor().scl(-deltaTime*10);
             velocity.add(tmp);
             //stop
-            if (velocity.len() < 0.001) {velocity.scl(0);}
+            if (velocity.len() < 0.1) {velocity.scl(0);}
 
             //rotation
-            rollVelocity.slerp(new Quaternion(), deltaTime*5);
+            rollVelocity.slerp(new Quaternion(), deltaTime*10);
         }
+
+
 
         //update position with velocity
         camera.position.add(velocity);

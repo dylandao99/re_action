@@ -2,19 +2,14 @@ package com.mygdx.re_action;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.loaders.ModelLoader;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
-import com.badlogic.gdx.graphics.g3d.model.data.ModelData;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.graphics.g3d.utils.TextureProvider;
-import com.badlogic.gdx.utils.BaseJsonReader;
-import com.badlogic.gdx.utils.JsonReader;
-import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.math.Plane;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.UBJsonReader;
 
 import java.io.InputStream;
@@ -32,6 +27,7 @@ public class re_action extends ApplicationAdapter {
 
 	private Model mBgCube;
 	private ModelInstance iBgCube;
+	BoundingBox bBgCube;
 
 	//lighting
 	private DirectionalLight dl;
@@ -45,8 +41,8 @@ public class re_action extends ApplicationAdapter {
 		player = new Player();
 
 		//TODO remove
-		player.cam.position.set(10f, 10f, 10f);
-		player.cam.lookAt(0f, 0f, 0f);
+		//player.cam.position.set(10f, 10f, 10f);
+		//player.cam.lookAt(0f, 0f, 0f);
 
 		//initialize lighting
 		dl = new DirectionalLight();
@@ -65,7 +61,7 @@ public class re_action extends ApplicationAdapter {
 
 		//ModelData md = ml.loadModelData(Gdx.files.internal("invertcube.g3db"));
 
-		mBgCube = ml.loadModel(Gdx.files.internal("invertcube.g3db"));
+		mBgCube = ml.loadModel(Gdx.files.internal("invertcubescaled.g3db"));
 
 		/*mBgCube = mblr.createBox(5, 5, 5,
 				new Material(ColorAttribute.createDiffuse(Color.GREEN)),
@@ -73,11 +69,17 @@ public class re_action extends ApplicationAdapter {
 
 		iBgCube = new ModelInstance(mBgCube);
 
+		bBgCube = new BoundingBox();
+		mBgCube.calculateBoundingBox(bBgCube);
+
 		//set player input control
 		Gdx.input.setInputProcessor(player.fpsController);
 
 		//first camera update
 		player.cam.update();
+
+		//TODO remove
+
 	}
 
 	@Override
@@ -87,12 +89,34 @@ public class re_action extends ApplicationAdapter {
 
 		mb.begin(player.cam);
 		mb.render(iBgCube, env);
+		mb.render(player.modelInstance, env);
 		mb.end();
 
 		player.fpsController.update();
 		player.cam.update();
 
+		//TODO set camera to follow player sprite
+
 		//TODO set player spirte to follow camera
+
+		player.modelInstance.transform.rotate(new Vector3(1, 0, 0), 10f);
+		player.modelInstance.transform.translate(0.1f, 0.1f, 0.1f);
+
+		//Matrix4 temp = new Matrix4(player.modelInstance.transform.cpy());
+		//Matrix4 temp2 = new Matrix4(player.cam.combined.cpy());
+		//Matrix4 trans = new Matrix4(temp.inv().mul(temp2));
+		//player.bBox.
+
+		//player.bBox.mul(player.modelInstance.transform);
+		//player.bBox.mul(trans);
+
+		//player.modelInstance.transform.mul(trans);
+
+		/*if (!bBgCube.intersects(player.bBox)){
+			System.out.println("working");
+		}*/
+
+		player.isColliding (iBgCube);
 	}
 	
 	@Override
