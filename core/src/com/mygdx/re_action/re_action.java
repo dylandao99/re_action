@@ -7,9 +7,6 @@ import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
-import com.badlogic.gdx.math.Plane;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.UBJsonReader;
 
 import java.io.InputStream;
@@ -27,7 +24,6 @@ public class re_action extends ApplicationAdapter {
 
 	private Model mBgCube;
 	private ModelInstance iBgCube;
-	BoundingBox bBgCube;
 
 	//lighting
 	private DirectionalLight dl;
@@ -69,9 +65,6 @@ public class re_action extends ApplicationAdapter {
 
 		iBgCube = new ModelInstance(mBgCube);
 
-		bBgCube = new BoundingBox();
-		mBgCube.calculateBoundingBox(bBgCube);
-
 		//set player input control
 		Gdx.input.setInputProcessor(player.fpsController);
 
@@ -98,23 +91,6 @@ public class re_action extends ApplicationAdapter {
 		//TODO set camera to follow player sprite
 
 		//TODO set player spirte to follow camera
-
-		player.modelInstance.transform.rotate(new Vector3(1, 0, 0), 10f);
-		player.modelInstance.transform.translate(0.1f, 0.1f, 0.1f);
-
-		//Matrix4 temp = new Matrix4(player.modelInstance.transform.cpy());
-		//Matrix4 temp2 = new Matrix4(player.cam.combined.cpy());
-		//Matrix4 trans = new Matrix4(temp.inv().mul(temp2));
-		//player.bBox.
-
-		//player.bBox.mul(player.modelInstance.transform);
-		//player.bBox.mul(trans);
-
-		//player.modelInstance.transform.mul(trans);
-
-		/*if (!bBgCube.intersects(player.bBox)){
-			System.out.println("working");
-		}*/
 
 		player.isColliding (iBgCube);
 	}

@@ -25,7 +25,6 @@ public class Player {
     FPSController fpsController;
     Model model;
     ModelInstance modelInstance;
-    BoundingBox bBox;
 
 
     public Player(){
@@ -33,19 +32,19 @@ public class Player {
         velocity = new Vector3(0, 0, 0);
 
         //create player camera
-        cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        cam = new PerspectiveCamera(120, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.far = 1200;
-
-        fpsController = new FPSController(cam);
 
         ModelBuilder mblr = new ModelBuilder();
 
-        model = mblr.createBox(1, 1, 1,
+        model = mblr.createBox(10, 10, 10,
                 new Material(ColorAttribute.createDiffuse(Color.GREEN)),
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
         modelInstance = new ModelInstance(model);
-        modelInstance.transform.scale(10, 10, 10);
+        //modelInstance.transform.translate(0, 0, -20);
+
+        fpsController = new FPSController(cam, modelInstance);
     }
 
     public boolean isColliding(ModelInstance otherModelInstance){
@@ -58,18 +57,6 @@ public class Player {
 
         //invert affine transformation matrix
         Matrix4 inversion = affine.inv();
-
-        //TODO REMOVE
-        Mesh mesh = modelInstance.model.meshes.get(0);
-        float[] vert = new float[24*2];
-        mesh.getVertices(vert);
-        for (int i = 0; i < vert.length; i+=6){
-            Vector3 vec = new Vector3(vert[i], vert[i+1], vert[i+2]);
-            //System.out.println("now prnting for " + i);
-            vec.mul(affine);
-
-            //System.out.println(vec.toString());
-        }
 
         //get other model affine transformation matrix
         Matrix4 oAffine = new Matrix4();
@@ -135,64 +122,28 @@ public class Player {
             }
         }
 
-        /*System.out.println(maxX);
-        System.out.println(maxY);
-        System.out.println(maxZ);
-        System.out.println(minX);
-        System.out.println(minY);
-        System.out.println(minZ);*/
-
         //check if points are inside unit box
         for (int i = 0; i < 8; i++){
             if (-0.5 < invertedBoxCoordinates[i].x && 0.5 > invertedBoxCoordinates[i].x &&
                     -0.5 < invertedBoxCoordinates[i].y && 0.5 > invertedBoxCoordinates[i].y &&
                     -0.5 < invertedBoxCoordinates[i].z && 0.5 > invertedBoxCoordinates[i].z){
-                System.out.println("point inside unit box");
+                //System.out.println("point inside unit box");
                 return true;
             }
 
+            //TODO THIS IS STUPID. FIX SCALING, ONE CANNOT BE INSIDE THE OTHER EXCEPT WHEN EXACTLY INSIDE THE OTHER
             if (minX < unitBox[i].x && maxX > unitBox[i].x &&
                     minY < unitBox[i].y && maxY > unitBox[i].y &&
                     minZ < unitBox[i].z && maxZ > unitBox[i].z){
-                System.out.println("unit box inside main box");
+                //System.out.println("unit box inside main box");
                 return true;
             }
-            //check if unit box points is inside box
-            //check every unit box point
-
         }
-
-        //TODO check if unit box is inside
 
         //TODO pass to collision processing (momentum stuff)
 
+        System.out.println("not colliding");
 
-        /*Mesh mesh = modelInstance.model.meshes.get(0);
-
-        float[] points = new float[mesh.getNumVertices()*2];
-
-        short[] indices = new short[mesh.getNumIndices()];
-
-        mesh.getVertices(points);
-
-        mesh.getIndices(indices);
-
-        for (int i = 0; i < points.length; i+=6){
-            //System.out.println("now prnting for " + i);
-            System.out.println(points[i] + ", " + points[i+1] + ", " + points[i+2]);
-        }
-
-        for (int i = 0; i < indices.length; i+=3){
-            //System.out.println("now prnting for " + i);
-            System.out.println(indices[i] + ", " + indices[i+1] + ", " + indices[i+2]);
-        }
-
-        //System.out.println(points[4] + ", " + points[5] + ", " + points[6]);
-
-        System.out.println("Number of Vertices: " + mesh.getNumVertices());
-
-        //System.out.println(mesh.getNumIndices());*/
-
-        return true;
+        return false;
     }
 }
