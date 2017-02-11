@@ -32,7 +32,7 @@ public class Player {
         velocity = new Vector3(0, 0, 0);
 
         //create player camera
-        cam = new PerspectiveCamera(120, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.far = 1200;
 
         ModelBuilder mblr = new ModelBuilder();

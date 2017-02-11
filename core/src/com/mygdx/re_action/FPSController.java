@@ -61,7 +61,6 @@ public class FPSController extends InputAdapter {
         cubeUp = new Vector3(0f, 1f, 0f);
         velocity = new Vector3(0, 0, 0);
         rollVelocity = new Quaternion();
-        modelInstance.transform.setToTranslation(0, 0, -20);
 
     }
 
@@ -106,20 +105,12 @@ public class FPSController extends InputAdapter {
         Quaternion xRotate = new Quaternion((tmp.set(up)).nor(), deltaX).nor();
         Quaternion yRotate = new Quaternion((tmp.set(right).nor()), deltaY).nor();
         Quaternion yRotateWorld = new Quaternion((tmp.set(right.mul(new Matrix4(playerRot)).nor())), deltaY).nor();
-
-        //TODO NEED TO LEFT MULTIPLY
-
-        //TODO xRotate only affects cubeForward
-        //TODO yRotate affects cubeUp and cubeForward
+        Quaternion xRotateWorld = new Quaternion((tmp.set(up.mul(new Matrix4(playerRot)).nor())), deltaX).nor();
 
         Quaternion rot = xRotate.cpy().mul(yRotate.cpy()).nor();
 
-
-        cubeForward.mul(new Matrix4(yRotateWorld.cpy()));
-        cubeForward.mul(new Matrix4(xRotate.cpy()));
-
-        //cubeUp.mul(new Matrix4(playerRot.conjugate().mul(rot).nor()));
-        cubeUp.mul(new Matrix4(yRotateWorld));
+        camera.rotate(yRotateWorld);
+        camera.rotate(xRotateWorld);
 
         modelInstance.transform.rotate(rot);
 
@@ -238,8 +229,8 @@ public class FPSController extends InputAdapter {
         //camera.rotate(rollVelocity);
         //modelInstance.transform.rotate(rollVelocity);
 
-        camera.direction.set(cubeForward);
-        camera.up.set(cubeUp);
+        //camera.direction.set(cubeForward);
+        //camera.up.set(cubeUp);
 
         camera.update(true);
     }
