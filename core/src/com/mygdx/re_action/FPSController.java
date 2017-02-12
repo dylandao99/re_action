@@ -49,18 +49,16 @@ public class FPSController extends InputAdapter {
     private float degreesPerPixel = 0.5f;
     private float rollMultiplier = 10.0f;
     private Quaternion rollVelocity;
-    private Vector3 cubeForward;
-    private Vector3 cubeUp;
+    private Quaternion worldRot;
 
     private final Vector3 tmp = new Vector3();
     public FPSController (Camera camera, ModelInstance modelInstance) {
         this.camera = camera;
         this.modelInstance = modelInstance;
 
-        cubeForward = new Vector3(0f,0f,-1f);
-        cubeUp = new Vector3(0f, 1f, 0f);
         velocity = new Vector3(0, 0, 0);
         rollVelocity = new Quaternion();
+        worldRot = new Quaternion();
 
     }
 
@@ -97,10 +95,8 @@ public class FPSController extends InputAdapter {
         Quaternion playerRot = modelInstance.transform.getRotation(new Quaternion()).nor();
 
         Vector3 right = new Vector3(1f, 0f, 0f);
-        //right.mul(playerRot);
 
         Vector3 up = new Vector3(0f, 1f, 0f);
-        //up.mul(playerRot);
 
         Quaternion xRotate = new Quaternion((tmp.set(up)).nor(), deltaX).nor();
         Quaternion yRotate = new Quaternion((tmp.set(right).nor()), deltaY).nor();
@@ -108,58 +104,11 @@ public class FPSController extends InputAdapter {
         Quaternion xRotateWorld = new Quaternion((tmp.set(up.mul(new Matrix4(playerRot)).nor())), deltaX).nor();
 
         Quaternion rot = xRotate.cpy().mul(yRotate.cpy()).nor();
+        worldRot = xRotateWorld.cpy().mul(yRotateWorld.cpy()).nor();
 
-        camera.rotate(yRotateWorld);
-        camera.rotate(xRotateWorld);
-
-        modelInstance.transform.rotate(rot);
-
-
-
-        /*
-        //get player affine transformation matrix
-        Matrix4 affine = new Matrix4();
-        affine.set(modelInstance.transform.getTranslation(new Vector3()).add(0, 0, 20),
-                modelInstance.transform.getRotation(new Quaternion()),
-                modelInstance.transform.getScale(new Vector3()));
-
-        Vector3 dir = new Vector3(0f, 0f, -1f);
-        dir.mul(affine);
-        camera.direction.set(dir);*/
-
-        //Vector3 up = new Vector3(0f, 1f, 0f);
-        //up.mul(affine);
-        //camera.up.set(up);
-
-        //camera.up.set(cubeUp);
-        //camera.direction.set(cubeForward);
-
-        //System.out.println(rot.getAngle());
-
-
-        /*Quaternion worldRot = new Quaternion(modelInstance.transform.getRotation(new Quaternion())).nor();
-
-        //set x and y axis quaternion
-        Quaternion xRotate = new Quaternion().set(tmp.set(camera.up).nor(), deltaX).nor();
-        Quaternion yRotate = new Quaternion().set(tmp.set(camera.direction).crs(camera.up).nor(), deltaY).nor();
-
-        Quaternion rot = xRotate.mul(yRotate).nor();
-
-        System.out.println("Worldrot: " + worldRot.toString());
-        System.out.println("Rot: " + rot.toString());
-
-        camera.rotate(qTmp.set(rot));
-
-        Quaternion rotation = qTmp.set(rot).mul(qTmp2.set(worldRot).conjugate());
-
-        System.out.println("New Rot: " + rotation.toString());
+        camera.rotate(worldRot);
 
         modelInstance.transform.rotate(rot);
-
-        System.out.println("New Rotation: " + modelInstance.transform.getRotation(new Quaternion()));
-
-        System.out.println();
-        */
 
         return super.mouseMoved(screenX, screenY);
     }
@@ -186,6 +135,7 @@ public class FPSController extends InputAdapter {
             tmp.set(camera.direction).crs(camera.up).nor().scl(deltaTime * speedMultiplier);
             velocity.add(tmp);
         }
+        /*
         if (keys.containsKey(ROLL_LEFT)) {
             Quaternion roll = new Quaternion().set(tmp.set(camera.direction).nor(), -rollMultiplier*deltaTime);
             rollVelocity.mul(roll);
@@ -193,7 +143,7 @@ public class FPSController extends InputAdapter {
         if (keys.containsKey(ROLL_RIGHT)) {
             Quaternion roll = new Quaternion().set(tmp.set(camera.direction).nor(), rollMultiplier*deltaTime);
             rollVelocity.mul(roll);
-        }
+        }*/
         if (keys.containsKey(STRAFE_UP)) {
             tmp.set(camera.up).nor().scl(deltaTime * speedMultiplier);
             velocity.add(tmp);
@@ -221,17 +171,12 @@ public class FPSController extends InputAdapter {
         }
 
         //update position with velocity
-        //TODO CHANGE TO FOLLOW
-        camera.position.add(tmp.set(velocity));
         modelInstance.transform.trn(velocity);
 
-        //update rotation with rollVelocity
-        //camera.rotate(rollVelocity);
-        //modelInstance.transform.rotate(rollVelocity);
-
-        //camera.direction.set(cubeForward);
-        //camera.up.set(cubeUp);
-
         camera.update(true);
+    }
+
+    public Quaternion getWorldRotation(){
+        return worldRot;
     }
 }
