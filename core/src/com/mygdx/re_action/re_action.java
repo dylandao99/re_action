@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.UBJsonReader;
 
 import java.io.InputStream;
@@ -34,7 +35,7 @@ public class re_action extends ApplicationAdapter {
 		Gdx.input.setCursorCatched(true);
 
 		//initialize player entities
-		player = new Player();
+		player = new Player(1f, 100f, false, Actor.CUBE);
 
 		//TODO remove
 		//player.cam.position.set(10f, 10f, 10f);
@@ -88,7 +89,15 @@ public class re_action extends ApplicationAdapter {
 		player.fpsController.update();
 		player.cam.update();
 
-		player.isColliding (iBgCube);
+		//heck background cube collision
+		Vector3 collisionPoint = player.isColliding (iBgCube);
+		if(collisionPoint != null){
+			Physics physics = new Physics();
+			physics.staticCollision(player.modelInstance, iBgCube, collisionPoint);
+		}
+
+		//check other cube collision
+
 	}
 	
 	@Override
