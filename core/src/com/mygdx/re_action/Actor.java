@@ -51,7 +51,7 @@ public class Actor {
             case 0:
                 G3dModelLoader ml = new G3dModelLoader(new UBJsonReader());
 
-                model = ml.loadModel(Gdx.files.internal("invertcubescaled.g3db"));
+                model = ml.loadModel(Gdx.files.internal(modelFile));
 
                 break;
             default:

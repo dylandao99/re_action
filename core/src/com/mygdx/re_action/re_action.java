@@ -81,7 +81,7 @@ public class re_action extends ApplicationAdapter {
 		Vector3 collisionPoint = player.isCollidingCubeCube (background);
 		if(collisionPoint != null){
 			Physics physics = new Physics();
-			physics.staticCollision(player.modelInstance, iBgCube, collisionPoint);
+			physics.staticCollision(player, background, collisionPoint);
 		}
 
 		//check other cube collision

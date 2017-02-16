@@ -11,7 +11,7 @@ public class Physics {
     public Physics(){
     }
 
-    public void staticCollision(ModelInstance obj1, ModelInstance Obj2, Vector3 collisionPoint){
+    public void staticCollision(Actor actor1, Actor actor2, Vector3 collisionPoint){
 
     }
 
