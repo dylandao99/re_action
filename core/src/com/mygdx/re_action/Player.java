@@ -24,9 +24,9 @@ public class Player extends Actor{
     PerspectiveCamera cam;
     FPSController fpsController;
 
-    public Player(float mass, float scale, boolean isStatic, int shape){
+    public Player(float mass, float scale, int shape, String modelName){
 
-        super(mass, scale, isStatic, shape);
+        super(mass, scale, shape, modelName);
 
         health = 10;
 

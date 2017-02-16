@@ -1,5 +1,6 @@
 package com.mygdx.re_action;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -7,10 +8,12 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.UBJsonReader;
 
 /**
  * Created by dylan on 15/02/17.
@@ -23,28 +26,34 @@ public class Actor {
     Vector3 angularVelocity;
     float mass;
     float scale;
-    boolean isStatic;
 
+    public final static int CUSTOM = 0;
     public final static int CUBE = 1;
 
-    public Actor (float mass, float scale, boolean isStatic, int shape){
+    public Actor (float mass, float scale, int shape, String modelFile){
+
         //initialize variables
         this.mass = mass;
         this.scale = scale;
-        this.isStatic = isStatic;
         velocity = new Vector3();
         angularVelocity = new Vector3();
 
         //create model
-        createModel(shape);
+        createModel(shape, modelFile);
     }
 
-    public void createModel(int shape){
+    public void createModel(int shape, String modelFile){
 
         Model model;
         ModelBuilder mblr = new ModelBuilder();
 
         switch (shape){
+            case 0:
+                G3dModelLoader ml = new G3dModelLoader(new UBJsonReader());
+
+                model = ml.loadModel(Gdx.files.internal("invertcubescaled.g3db"));
+
+                break;
             default:
             case 1:
                 model = mblr.createBox(scale, scale, scale,
@@ -56,7 +65,7 @@ public class Actor {
         modelInstance = new ModelInstance(model);
     }
 
-    public Vector3 isColliding(ModelInstance otherModelInstance){
+    public Vector3 isCollidingCubeCube(Actor otherActor){
 
         //get player affine transformation matrix
         Matrix4 affine = new Matrix4();
@@ -68,7 +77,7 @@ public class Actor {
         Matrix4 inversion = affine.cpy().inv();
 
         //get other mesh
-        Mesh oMesh = otherModelInstance.model.meshes.get(0);
+        Mesh oMesh = otherActor.getModelInstance().model.meshes.get(0);
         float[] baseVertices = new float[64];
         oMesh.getVertices(baseVertices);
 
@@ -79,7 +88,7 @@ public class Actor {
             //convert vertex array into position vectors
             Vector3 posVector = new Vector3(baseVertices[i], baseVertices[i+1], baseVertices[i+2]);
 
-            posVector.mul(otherModelInstance.transform);
+            posVector.mul(otherActor.getModelInstance().transform);
 
             //multiply vector by inverted affine matrix
             Vector3 invPosVector = posVector.cpy().mul(new Matrix4(inversion));
@@ -88,12 +97,11 @@ public class Actor {
             invertedBoxCoordinates[i/8] = invPosVector;
         }
 
-        //TODO CLEAN THIS
         //get other model affine transformation matrix
         Matrix4 oAffine = new Matrix4();
-        oAffine.set(otherModelInstance.transform.getTranslation(new Vector3()),
-                otherModelInstance.transform.getRotation(new Quaternion()).nor(),
-                otherModelInstance.transform.getScale(new Vector3()).scl(800)); //TODO MAKE MORE UNIVERSAL
+        oAffine.set(otherActor.getModelInstance().transform.getTranslation(new Vector3()),
+                otherActor.getModelInstance().transform.getRotation(new Quaternion()).nor(),
+                otherActor.getModelInstance().transform.getScale(new Vector3()).scl(otherActor.scale)); //TODO MAKE MORE UNIVERSAL
 
         Matrix4 oInversion = oAffine.cpy().inv();
 
@@ -140,13 +148,6 @@ public class Actor {
                 trans.set(oAffine);
             }
         }
-
-        //TODO FIND POINT OF INTERSECTION
-        //find the point closest to the bound of the box
-
-        //TODO pass to collision processing (momentum stuff)
-
-
 
         if (numCollisions == 0){
             System.out.println("not colliding");
@@ -200,5 +201,10 @@ public class Actor {
             //transform it with affine
             return contactPoint;
         }
+    }
+
+    //getters and setters
+    public ModelInstance getModelInstance(){
+        return modelInstance;
     }
 }

@@ -39,15 +39,12 @@ public class FPSController extends InputAdapter {
     private int STRAFE_RIGHT = Keys.D;
     private int FORWARD = Keys.W;
     private int BACKWARD = Keys.S;
-    private int ROLL_LEFT = Keys.Q;
-    private int ROLL_RIGHT = Keys.E;
     private int STRAFE_UP = Keys.SPACE;
     private int STRAFE_DOWN = Keys.SHIFT_LEFT;
     private int STABILIZE = Keys.CONTROL_LEFT;
     private float speedMultiplier = 10;
     private Vector3 velocity;
     private float degreesPerPixel = 0.5f;
-    private float rollMultiplier = 10.0f;
     private Quaternion rollVelocity;
     private Quaternion worldRot;
     private Quaternion cameraRot;
@@ -138,15 +135,6 @@ public class FPSController extends InputAdapter {
             tmp.set(camera.direction).crs(camera.up).nor().scl(deltaTime * speedMultiplier);
             velocity.add(tmp);
         }
-        /*
-        if (keys.containsKey(ROLL_LEFT)) {
-            Quaternion roll = new Quaternion().set(tmp.set(camera.direction).nor(), -rollMultiplier*deltaTime);
-            rollVelocity.mul(roll);
-        }
-        if (keys.containsKey(ROLL_RIGHT)) {
-            Quaternion roll = new Quaternion().set(tmp.set(camera.direction).nor(), rollMultiplier*deltaTime);
-            rollVelocity.mul(roll);
-        }*/
         if (keys.containsKey(STRAFE_UP)) {
             tmp.set(camera.up).nor().scl(deltaTime * speedMultiplier);
             velocity.add(tmp);
@@ -175,7 +163,7 @@ public class FPSController extends InputAdapter {
 
         //update position with velocity
         modelInstance.transform.trn(velocity);
-        //camera.position.set(modelInstance.transform.getTranslation(new Vector3()));
+        camera.position.set(modelInstance.transform.getTranslation(new Vector3()));
 
         camera.update(true);
     }
