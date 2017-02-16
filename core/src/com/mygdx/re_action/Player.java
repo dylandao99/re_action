@@ -31,7 +31,6 @@ public class Player {
     public Player(){
         health = 10;
         velocity = new Vector3(0, 0, 0);
-        //todo not very accurate, fix
 
         //create player camera
         cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -44,113 +43,75 @@ public class Player {
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
         modelInstance = new ModelInstance(model);
+        //modelInstance.transform.scale(2,2,2);
         //modelInstance.transform.translate(0, 0, -20);
 
         fpsController = new FPSController(cam, modelInstance);
     }
 
-    public int isColliding(ModelInstance otherModelInstance){
+    public Vector3 isColliding(ModelInstance otherModelInstance){
 
         //get player affine transformation matrix
         Matrix4 affine = new Matrix4();
         affine.set(modelInstance.transform.getTranslation(new Vector3()),
-                fpsController.getWorldRotation(),
+                fpsController.getCameraRotation().nor(),
                 modelInstance.transform.getScale(new Vector3()).scl(scale));
 
-
-
         //invert affine transformation matrix
-        Matrix4 inversion = affine.inv();
-
-        //get other model affine transformation matrix
-        Matrix4 oAffine = new Matrix4();
-        oAffine.set(otherModelInstance.transform.getTranslation(new Vector3()),
-                otherModelInstance.transform.getRotation(new Quaternion()).nor(),
-                otherModelInstance.transform.getScale(new Vector3()));
+        Matrix4 inversion = affine.cpy().inv();
 
         //get other mesh
         Mesh oMesh = otherModelInstance.model.meshes.get(0);
         float[] baseVertices = new float[64];
         oMesh.getVertices(baseVertices);
 
-        /*for (int i = 0; i < baseVertices.length; i+=3){
-            System.out.println(baseVertices[i] + ", " + baseVertices[i+1] + ", " + baseVertices[i+2]);
-        }*/
-
-        //todo REMOVE, FOR TESTING
-        Mesh mesh = modelInstance.model.meshes.get(0);
-        float[] BaseVertices = new float[48];
-        mesh.getVertices(BaseVertices);
-        Vector3 v3[] = new Vector3[8];
-
-        for (int i = 0; i < BaseVertices.length; i+=6){
-            //Vector3 PosVector = new Vector3(BaseVertices[i], BaseVertices[i+1], BaseVertices[i+2]);
-            //PosVector.mul(affine);
-            //v3[i/6] = PosVector;
-        }
-
         //convert base mesh vertices to translated mesh vertices
         Vector3 invertedBoxCoordinates[] = new Vector3[8];
-        Vector3 invertedBoxCoordinates2[] = new Vector3[8];
         for (int i = 0; i < baseVertices.length; i+=8){
 
             //convert vertex array into position vectors
             Vector3 posVector = new Vector3(baseVertices[i], baseVertices[i+1], baseVertices[i+2]);
 
-            //multiply vector by it's own affine matrix
-            Vector3 modPosVector = posVector.cpy().mul(new Matrix4(oAffine));
+            posVector.mul(otherModelInstance.transform);
 
             //multiply vector by inverted affine matrix
-            Vector3 invPosVector = modPosVector.cpy().mul(new Matrix4(inversion));
+            Vector3 invPosVector = posVector.cpy().mul(new Matrix4(inversion));
 
             //add vector to array
             invertedBoxCoordinates[i/8] = invPosVector;
-            invertedBoxCoordinates2[i/8] = modPosVector;
         }
 
-        for (int i = 0; i < invertedBoxCoordinates.length; i++){
-            System.out.println(invertedBoxCoordinates[i].toString());
-            //System.out.println(invertedBoxCoordinates2[i].toString());
-            //System.out.println(v3[i].toString());
+        //TODO CLEAN THIS
+        //get other model affine transformation matrix
+        Matrix4 oAffine = new Matrix4();
+        oAffine.set(otherModelInstance.transform.getTranslation(new Vector3()),
+                otherModelInstance.transform.getRotation(new Quaternion()).nor(),
+                otherModelInstance.transform.getScale(new Vector3()).scl(800)); //TODO MAKE MORE UNIVERSAL
+
+        Matrix4 oInversion = oAffine.cpy().inv();
+
+        Mesh mesh = modelInstance.model.meshes.get(0);
+        float[] oBaseVertices = new float[48];
+        mesh.getVertices(oBaseVertices);
+        Vector3 v3[] = new Vector3[8];
+
+        for (int i = 0; i < oBaseVertices.length; i+=6){
+            v3[i/6] = new Vector3(oBaseVertices[i], oBaseVertices[i+1], oBaseVertices[i+2]);
         }
 
-        Vector3 unitBox[] = {new Vector3 (-0.5f, -0.5f, -0.5f),
-                            new Vector3 (-0.5f, -0.5f, 0.5f),
-                            new Vector3 (0.5f, -0.5f, -0.5f),
-                            new Vector3 (-0.5f, 0.5f, -0.5f),
-                            new Vector3 (-0.5f, 0.5f, 0.5f),
-                            new Vector3 (0.5f, -0.5f, 0.5f),
-                            new Vector3 (0.5f, 0.5f, -0.5f),
-                            new Vector3 (0.5f, 0.5f, 0.5f)};
+        for (int i = 0; i < v3.length; i++){
+            Vector3 PosVector = v3[i].cpy();
 
+            PosVector.mul(modelInstance.transform);
 
-        //get max and min values for otherModel
-        float maxX = invertedBoxCoordinates[0].x; float minX = invertedBoxCoordinates[0].x;
-        float maxY = invertedBoxCoordinates[0].y; float minY = invertedBoxCoordinates[0].y;
-        float maxZ = invertedBoxCoordinates[0].z; float minZ = invertedBoxCoordinates[0].z;
+            PosVector.mul(oInversion.cpy());
 
-        for (int i = 1; i < 8; i++){
-            if (invertedBoxCoordinates[i].x > maxX){
-                maxX = invertedBoxCoordinates[i].x;
-            }
-            if (invertedBoxCoordinates[i].y > maxY){
-                maxY = invertedBoxCoordinates[i].y;
-            }
-            if (invertedBoxCoordinates[i].z > maxZ){
-                maxZ = invertedBoxCoordinates[i].z;
-            }
-            if (invertedBoxCoordinates[i].x < minX){
-                minX = invertedBoxCoordinates[i].x;
-            }
-            if (invertedBoxCoordinates[i].y < minY){
-                minY = invertedBoxCoordinates[i].y;
-            }
-            if (invertedBoxCoordinates[i].z < minZ){
-                minZ = invertedBoxCoordinates[i].z;
-            }
+            v3[i] = PosVector;
         }
 
         int numCollisions = 0;
+
+        Matrix4 trans = new Matrix4();
 
         //check if points are inside unit box
         for (int i = 0; i < 8; i++){
@@ -159,31 +120,85 @@ public class Player {
                     -0.5 < invertedBoxCoordinates[i].z && 0.5 > invertedBoxCoordinates[i].z){
                 //System.out.println("point inside unit box");
                 numCollisions++;
-            }
-
-            //unit box inside box
-            if (minX < unitBox[i].x && maxX > unitBox[i].x &&
-                    minY < unitBox[i].y && maxY > unitBox[i].y &&
-                    minZ < unitBox[i].z && maxZ > unitBox[i].z){
-                //System.out.println("unit box inside main box");
-                numCollisions++;
+                trans.set(affine);
             }
         }
+
+        //check the other box
+        for (int i = 0; i < 8; i++){
+            if (-0.5 < v3[i].x && 0.5 > v3[i].x &&
+                    -0.5 < v3[i].y && 0.5 > v3[i].y &&
+                    -0.5 < v3[i].z && 0.5 > v3[i].z){
+                numCollisions++;
+                trans.set(oAffine);
+            }
+        }
+
+        //TODO FIND POINT OF INTERSECTION
+        //find the point closest to the bound of the box
 
         //TODO pass to collision processing (momentum stuff)
 
 
 
         if (numCollisions == 0){
-            System.out.print("not colliding");
+            System.out.println("not colliding");
+            return null;
         } else if (numCollisions >= 8){
-            System.out.print("inside");
+            System.out.println(numCollisions);
+            System.out.println("inside");
+            return null;
         } else {
-            System.out.print("colliding");
+            System.out.println("colliding");
+            //locate collision point
+            //search for point closest to 0.5 value
+            int index = 0;
+            double diff;
+            Vector3 unitContactPoint;
+
+            if (trans.equals(affine)) {
+                diff = Math.abs(0.5 - invertedBoxCoordinates[0].x);
+                for (int i = 0; i < invertedBoxCoordinates.length; i++) {
+                    if (Math.abs(0.5 - invertedBoxCoordinates[i].x) < diff) {
+                        diff = Math.abs(0.5 - invertedBoxCoordinates[i].x);
+                        index = i;
+                    } else if (Math.abs(0.5 - invertedBoxCoordinates[i].y) < diff) {
+                        diff = Math.abs(0.5 - invertedBoxCoordinates[i].y);
+                        index = i;
+                    } else if (Math.abs(0.5 - invertedBoxCoordinates[i].z) < diff) {
+                        diff = Math.abs(0.5 - invertedBoxCoordinates[i].z);
+                        index = i;
+                    }
+                }
+                unitContactPoint = invertedBoxCoordinates[index];
+            } else {
+                diff = Math.abs(0.5 - v3[0].x);
+                for (int i = 0; i < v3.length; i++) {
+                    if (Math.abs(0.5 - v3[i].x) < diff) {
+                        diff = Math.abs(0.5 - v3[i].x);
+                        index = i;
+                    } else if (Math.abs(0.5 - v3[i].y) < diff) {
+                        diff = Math.abs(0.5 - v3[i].y);
+                        index = i;
+                    } else if (Math.abs(0.5 - v3[i].z) < diff) {
+                        diff = Math.abs(0.5 - v3[i].z);
+                        index = i;
+                    }
+                }
+                unitContactPoint = v3[index];
+            }
+
+            //TODO REORGANIZE WITH PARAMETERS AND METHODS
+
+            System.out.println("BEST MATCH: " + invertedBoxCoordinates[index].toString());
+
+            Vector3 contactPoint = unitContactPoint.mul(trans);
+            System.out.println("BEST MATCH: " + contactPoint.toString());
+            //System.out.println(modelInstance.transform.getTranslation(new Vector3()));
+
+
+            //transform it with affine
+            return contactPoint;
         }
-
-        System.out.println(": " + numCollisions);
-
-        return numCollisions;
     }
 }

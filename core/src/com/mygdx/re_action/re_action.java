@@ -88,10 +88,6 @@ public class re_action extends ApplicationAdapter {
 		player.fpsController.update();
 		player.cam.update();
 
-		//TODO set camera to follow player sprite
-
-		//TODO set player spirte to follow camera
-
 		player.isColliding (iBgCube);
 	}
 	
