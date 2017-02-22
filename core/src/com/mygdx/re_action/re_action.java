@@ -28,9 +28,6 @@ public class re_action extends ApplicationAdapter {
 
 	private Actor background;
 
-	private Model mBgCube;
-	private ModelInstance iBgCube;
-
 	//lighting
 	private DirectionalLight dl;
 	
@@ -77,18 +74,35 @@ public class re_action extends ApplicationAdapter {
 		player.fpsController.update();
 		player.cam.update();
 
+		//TODO check other collisions
+
+		//add velocity
+		player.velocity.set(player.fpsController.getVelocity());
+
 		//check background cube collision
-		Vector3 collisionPoint = player.isCollidingCubeCube (background);
-		if(collisionPoint != null){
-			Physics physics = new Physics();
-			physics.staticCollision(player, background, collisionPoint);
+		try {
+			Vector3 vectors[] = player.isCollidingCubeCube(background);
+			Vector3 collisionPoint = vectors[0];
+
+			if(collisionPoint != null){
+				Physics physics = new Physics();
+				physics.staticCollision(player, background, vectors[0], vectors[1]);
+			}
+		} catch (Exception e){
+
 		}
 
-		//check other cube collision
+		player.fpsController.getVelocity().set(player.velocity);
 
+		//update position with velocity
+		player.modelInstance.transform.trn(player.velocity.cpy().scl(Gdx.graphics.getDeltaTime()*100));
+		player.cam.position.set(player.modelInstance.transform.getTranslation(new Vector3()));
+
+		player.cam.update(true);
 	}
 	
 	@Override
 	public void dispose () {
+		//TODO DISPOSE EVERYTHING
 	}
 }

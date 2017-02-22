@@ -23,9 +23,10 @@ import com.badlogic.gdx.utils.UBJsonReader;
 public class Actor {
     ModelInstance modelInstance;
     Vector3 velocity;
-    Vector3 angularVelocity;
+    Quaternion angularVelocity;
     float mass;
     float scale;
+    int shape;
 
     public final static int CUSTOM = 0;
     public final static int CUBE = 1;
@@ -35,8 +36,9 @@ public class Actor {
         //initialize variables
         this.mass = mass;
         this.scale = scale;
+        this.shape = shape;
         velocity = new Vector3();
-        angularVelocity = new Vector3();
+        angularVelocity = new Quaternion();
 
         //create model
         createModel(shape, modelFile);
@@ -65,7 +67,7 @@ public class Actor {
         modelInstance = new ModelInstance(model);
     }
 
-    public Vector3 isCollidingCubeCube(Actor otherActor){
+    public Vector3[] isCollidingCubeCube(Actor otherActor){
 
         //get player affine transformation matrix
         Matrix4 affine = new Matrix4();
@@ -139,6 +141,8 @@ public class Actor {
             }
         }
 
+        Vector3 normal = new Vector3();
+
         //check the other box
         for (int i = 0; i < 8; i++){
             if (-0.5 < v3[i].x && 0.5 > v3[i].x &&
@@ -195,11 +199,28 @@ public class Actor {
                 unitContactPoint = v3[index];
             }
 
+            if (Math.abs(v3[index].x) > Math.abs(v3[index].y) && Math.abs(v3[index].x) > Math.abs(v3[index].z)){
+                normal = new Vector3(1, 0, 0);
+            } else if (Math.abs(v3[index].y) > Math.abs(v3[index].x) && Math.abs(v3[index].y) > Math.abs(v3[index].z)){
+                normal = new Vector3(0, 1, 0);
+            } else {
+                normal = new Vector3(0, 0, 1);
+            }
+
+            normal.mul(trans).nor();
+
+            Vector3 array[] = new Vector3[2];
+
+            //TODO FIND AND TRANSFORM VECTORS OF COLLISION
             Vector3 contactPoint = unitContactPoint.mul(trans);
             System.out.println("BEST MATCH: " + contactPoint.toString());
 
+            array[0] = contactPoint;
+            array[1] = normal;
+
+
             //transform it with affine
-            return contactPoint;
+            return array;
         }
     }
 
@@ -207,4 +228,10 @@ public class Actor {
     public ModelInstance getModelInstance(){
         return modelInstance;
     }
+
+    public Vector3 getVelocity() {return velocity; }
+
+    public Quaternion getAngularVelocity(){return angularVelocity; }
+
+    public float getMass() {return mass; }
 }

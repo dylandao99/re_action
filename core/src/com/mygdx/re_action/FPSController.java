@@ -45,9 +45,7 @@ public class FPSController extends InputAdapter {
     private float speedMultiplier = 10;
     private Vector3 velocity;
     private float degreesPerPixel = 0.5f;
-    private Quaternion rollVelocity;
     private Quaternion worldRot;
-    private Quaternion cameraRot;
 
     private final Vector3 tmp = new Vector3();
     public FPSController (Camera camera, ModelInstance modelInstance) {
@@ -55,9 +53,7 @@ public class FPSController extends InputAdapter {
         this.modelInstance = modelInstance;
 
         velocity = new Vector3(0, 0, 0);
-        rollVelocity = new Quaternion();
         worldRot = new Quaternion();
-        cameraRot = new Quaternion();
     }
 
     @Override
@@ -105,8 +101,6 @@ public class FPSController extends InputAdapter {
         worldRot.set(xRotateWorld.cpy().mul(yRotateWorld.cpy()).nor());
 
         camera.rotate(worldRot.cpy());
-
-        cameraRot.mul(worldRot.cpy());
 
         modelInstance.transform.rotate(rot);
 
@@ -156,19 +150,10 @@ public class FPSController extends InputAdapter {
             velocity.add(tmp);
             //stop
             if (velocity.len() < 0.1) {velocity.scl(0);}
-
-            //rotation
-            rollVelocity.slerp(new Quaternion(), deltaTime*10);
         }
-
-        //update position with velocity
-        modelInstance.transform.trn(velocity);
-        camera.position.set(modelInstance.transform.getTranslation(new Vector3()));
-
-        camera.update(true);
     }
 
-    public Quaternion getCameraRotation(){
-        return cameraRot;
+    public Vector3 getVelocity(){
+        return velocity;
     }
 }
