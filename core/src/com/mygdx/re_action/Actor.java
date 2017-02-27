@@ -207,7 +207,7 @@ public class Actor {
                 normal = new Vector3(0, 0, 1);
             }
 
-            normal.mul(trans).nor();
+            normal.mul(oAffine).nor();
 
             Vector3 array[] = new Vector3[2];
 

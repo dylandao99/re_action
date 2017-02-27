@@ -41,6 +41,7 @@ public class re_action extends ApplicationAdapter {
 
 		//initialize background
 		background = new Actor(0, 800f, Actor.CUSTOM, "invertcubescaled.g3db");
+		background.modelInstance.transform.rotate(1, 0, 0, 45);
 
 		//initialize lighting
 		dl = new DirectionalLight();

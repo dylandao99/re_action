@@ -18,6 +18,7 @@ package com.mygdx.re_action;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Camera;
@@ -100,6 +101,7 @@ public class FPSController extends InputAdapter {
         Quaternion rot = xRotate.cpy().mul(yRotate.cpy()).nor();
         worldRot.set(xRotateWorld.cpy().mul(yRotateWorld.cpy()).nor());
 
+
         camera.rotate(worldRot.cpy());
 
         modelInstance.transform.rotate(rot);
@@ -112,7 +114,10 @@ public class FPSController extends InputAdapter {
     }
 
     public void update (float deltaTime) {
-        //velocity-based
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
+            velocity.add(camera.direction.cpy().nor().scl(-1*speedMultiplier * deltaTime));
+        }
+        /*
         if (keys.containsKey(FORWARD)) {
             tmp.set(camera.direction).nor().scl(deltaTime * speedMultiplier);
             velocity.add(tmp);
@@ -141,6 +146,7 @@ public class FPSController extends InputAdapter {
             tmp.set(camera.direction).crs(camera.up).nor().scl(deltaTime * speedMultiplier);
             velocity.add(tmp);
         }
+        */
 
         //stabilizer
         if (keys.containsKey(STABILIZE)) {
